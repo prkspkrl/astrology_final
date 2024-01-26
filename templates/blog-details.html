@@ -1,0 +1,33 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block content %}
+
+        <section class="as_breadcrum_wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <h1>Blog and News</h1>
+
+                        <ul class="breadcrumb">
+                            <li><a href="{% url 'home' %}">Home</a></li>
+                            <li>Blog and News</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="as_servicedetail_wrapper as_padderBottom80 as_padderTop80">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-9 col-md-8">
+                        <div class="as_blog_box as_blog_single as_padderBottom80">
+                            <div class="as_blog_img">
+                                <img src="{{blogs.photo.url}}" alt="" class="img-responsive" style="height:500px; width:585px">
+                                <span class="as_btn">{% url 'home' %}</span>
+                            </div>
+                            <h2 class="as_subheading">{{blogs.title}}</h2>
+                            <p class="as_font14 as_margin0 as_padderBottom20">{{blogs.description}}</p>
+
+
+
+{% endblock %}

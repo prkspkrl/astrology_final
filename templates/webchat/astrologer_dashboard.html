@@ -1,0 +1,135 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Astrologer</title>
+  <link
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+  rel="stylesheet"
+/>
+<!-- Google Fonts -->
+<link
+  href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+  rel="stylesheet"
+/>
+<!-- MDB -->
+<link
+  href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.css"
+  rel="stylesheet"
+/>
+
+<!-- MDB JavaScript -->
+<script
+  type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.js"
+></script>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+<script>
+    setInterval(fetchMessages, 30000);
+function scrollToBottom() {
+    $("html, body").animate({ scrollTop: $('#conversation').height() }, "fast");
+}
+function getCSRFToken() {
+    var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    return csrfToken;
+}
+
+function fetchMessages(id) {
+  const url = id ? `/astrologer/conversations/?api=True&conversation=${id}` : '/astrologer/conversations/?api=True'
+  fetch(url, {
+    method: 'GET',
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.text();
+    })
+    .then(data => {
+      document.getElementById('conversation').innerHTML = data;
+      scrollToBottom();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while loading the template.');
+    });
+  scrollToBottom()
+}
+
+fetchMessages();
+
+function sendMessage(id) {
+  const value = document.getElementById('messageArea').value
+  const data = {
+    conversation: id,
+    content: value,
+    sender: {{request.user.id}}
+  }
+  const isCustomer = '{{ request.user.is_customer }}' === 'True'
+  if(isCustomer) {
+    data['translated_content'] = value
+  }
+
+  // Send a POST request to your Django server
+  fetch(`/api/v1/conversations/${id}/messages/`, {
+    headers: {
+      'Content-Type': 'application/json', // Set the content type to JSON
+      'X-CSRFToken': getCSRFToken(),
+    },
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json(); // assuming the server returns JSON
+    })
+    .then(response => {
+      fetchMessages(id);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  }
+</script>
+
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <img src='{% static "images/logo.svg" %}'  alt="Astrology Logo" height="40px">
+        </a>
+        <a href="{% url 'logout' %}" class="btn btn-light rounded-pill border">
+            Logout
+        </a>
+    </div>
+</nav>
+<section style="background-color: #eee;">
+  {% csrf_token %}
+  <div id="conversation" class="container py-5"></div>
+</section>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
